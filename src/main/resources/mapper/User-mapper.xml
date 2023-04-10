@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.light.community.dao.UserMapper"><!--填写user-mapper的全限定类名-->
+<mapper namespace="com.light.community.dao.UserMapper"><!--填写UserMapper的全限定类名-->
 
     <sql id="selectFields"><!--实现字段复用-->
         id,username,password,salt,email,type,status,activation_code,header_url,create_time
@@ -14,7 +14,7 @@
 
     <select id="selectById" resultType="User">
         <!--id要写UserMapper中对应声明的方法名-->
-        <!--resultType:返回类型（本应写全限定类名，
+        <!--resultType:返回类型（本应写全限定类名，但配置文件中声明了实体类存放处，只需声明其类名即可
         但提前已经在application.properties中声明过mybatis.type-aliases-package=com.light.community.entity
         所以只用写类名即可-->
         select  <include refid="selectFields"></include>

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 //定义了名字可以通过容器强制获取这个bean
 public class AlphaDaoHibernate implements AlphaDao{
 
-
     @Override
     public String select() {
         return "Hibernate";

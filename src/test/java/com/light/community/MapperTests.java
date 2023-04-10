@@ -1,8 +1,10 @@
 package com.light.community;
 
 import com.light.community.dao.DiscussPostMapper;
+import com.light.community.dao.LoginTicketMapper;
 import com.light.community.dao.UserMapper;
 import com.light.community.entity.DiscussPost;
+import com.light.community.entity.LoginTicket;
 import com.light.community.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,4 +81,26 @@ public class MapperTests {
         int rows = discussPostMapper.selectDiscussPostRows(149);
         System.out.println(rows);
     }
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+    @Test
+    public void testInsertTicket(){
+        loginTicketMapper.insertLoginTicket(new LoginTicket(111,"abc",0,new Date(System.currentTimeMillis()+1000*60*10)));
+
+    }
+
+    @Test
+    public void testSelectTicket(){
+        LoginTicket loginTicket = loginTicketMapper.selectByTicket("abc");
+        System.out.println("修改前查询...");
+        System.out.println(loginTicket);
+
+        loginTicketMapper.updateStatus("abc",1);
+        loginTicket =loginTicketMapper.selectByTicket("abc");
+        System.out.println("修改后查询...");
+        System.out.println(loginTicket);
+    }
+
+
 }

@@ -1,14 +1,17 @@
 package com.light.community.controller;
 
 import com.light.community.service.AlphaService;
+import com.light.community.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -41,6 +44,7 @@ public class AlphaController {
     @RequestMapping("/data")
     @ResponseBody
     public String getData(){//浏览器返回方法前提：这个方法必须有注解声明它的路径
+
         return alphaService.find();
     }
 
@@ -178,4 +182,53 @@ public class AlphaController {
         return list;
         //加了@ResponseBody注解，并返回的是Map对象，DispatchServlet会将Map对象自动转换成json字符串，发送给浏览器
     }
+
+
+    //cookie示例：弥补http无状态
+    @RequestMapping(path = "/cookie/set",method = RequestMethod.GET)
+    @ResponseBody
+    public String setCookie(HttpServletResponse response){
+        //将cookie存入response的头部中，响应时自动携带给浏览器
+
+        //1.创建cookie
+        Cookie cookie=new Cookie("code", CommunityUtil.generateUUID());
+
+        //2.设置cookie生效范围
+        cookie.setPath("/community/alpha");
+
+        //3.设置cookie的生存时间
+        cookie.setMaxAge(60*10);
+
+        //4.发送cookie
+        response.addCookie(cookie);
+
+        return "set cookie";
+
+    }
+
+    @RequestMapping(path = "/cookie/get",method = RequestMethod.GET)
+    @ResponseBody
+    public String getCookie(@CookieValue("code") String code){
+        System.out.println(code);
+        return "get cookie";
+    }
+
+
+    //session:会自动创建
+    @RequestMapping(path = "/session/set",method = RequestMethod.GET)
+    @ResponseBody
+    public String setSession(HttpSession session){
+        session.setAttribute("id",1);
+        session.setAttribute("name","light");
+        return "set session";
+    }
+    @RequestMapping(path = "/session/get",method = RequestMethod.GET)
+    @ResponseBody
+    public String getSession(HttpSession session){
+        System.out.println(session.getAttribute("id"));
+        System.out.println(session.getAttribute("name"));
+        return "session get";
+    }
+
+
 }

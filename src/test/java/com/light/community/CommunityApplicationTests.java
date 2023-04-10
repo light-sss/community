@@ -1,6 +1,5 @@
 package com.light.community;
 
-import com.light.community.config.AlphaConfig;
 import com.light.community.dao.AlphaDao;
 import com.light.community.service.AlphaService;
 import org.junit.jupiter.api.Test;
@@ -79,5 +78,6 @@ class CommunityApplicationTests implements ApplicationContextAware {
 	项目综合：在开发中由Controller处理浏览器请求，遭处理过程中会调用业务组件处理当前业务，业务组件会调用Dao去访问数据库
 			（即：Controller调用Service；Service调用Dao）彼此是互相依赖的，就可用依赖注入的方式去实现
 	 */
+
 
 }

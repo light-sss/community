@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 //注解所标识的类是一个配置文件
-@SpringBootApplication
+@SpringBootApplication   //标注这是一个spring boot应用
 public class CommunityApplication {
 
 	public static void main(String[] args) {
