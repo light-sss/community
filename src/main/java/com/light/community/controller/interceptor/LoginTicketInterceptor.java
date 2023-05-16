@@ -62,3 +62,15 @@ public class LoginTicketInterceptor implements HandlerInterceptor{
         hostHolder.clear();
     }
 }
+
+/*
+常用元注解
+@Target：用来声明自定义的注解可以写在哪个位置，可以作用在那个类型上（方法、属性、类
+@Retention:用来声明自定义注解保留的有效时间（编译时有效？运行时有效？
+@Document:用来声明在生成文档时会不会将这个自定义注解也带上
+@Inherited:继承，子类要不要继承父类的自定义注解
+
+如何读取注解：通过反射：
+Method.getDeclaredAnnotations()
+Method.getAnnotation(Class<T> annotationClass)
+ */

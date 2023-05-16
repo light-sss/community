@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.*;
  * @create 2023-03-27 21:43
  */
 @Mapper
+@Deprecated
 public interface LoginTicketMapper {
     //通过注解执行SQL语句
     @Insert({

@@ -22,4 +22,12 @@ public interface DiscussPostMapper {
     int selectDiscussPostRows(@Param("userId")int userId);
     //如果需要动态的提出条件（在<if>里使用），并且需要用到这个参数，且这个方法有且只有一个条件参数，此参数必须取别名
 
+    //实现插入帖子功能
+    int insertDiscussPost(DiscussPost discussPost);
+
+    //查找帖子-->通过id
+    DiscussPost selectDiscussPostById(int id);
+
+    //增加帖子评论数量
+    int updateCommentCount(int id,int commentCount);
 }

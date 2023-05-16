@@ -2,11 +2,16 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.light.community.dao.DiscussPostMapper"><!--填写user-mapper的全限定类名-->
+<mapper namespace="com.light.community.dao.DiscussPostMapper"><!--填写discusspost-mapper的全限定类名-->
 
     <!--提取查询字段-->
     <sql id="selectFields">
         id,user_id,title,content,type,status,create_time,comment_count,score
+    </sql>
+
+    <!--提取插入字段-->
+    <sql id="insertFields">
+        user_id,title,content,type,status,create_time,comment_count,score
     </sql>
 
 
@@ -29,4 +34,25 @@
             and user_id=#{userId}
         </if>
     </select>
+
+    <!-- int insertDiscussPost(DiscussPost discussPost); -->
+    <insert id="insertDiscussPost" parameterType="DiscussPost">
+        insert into discuss_post(<include refid="insertFields"></include>)
+        values(#{userId},#{title},#{content},#{type},#{status},#{createTime},#{commentCount},#{score})
+    </insert>
+
+    <!-- DiscussPost selectDiscussPostById(int id); -->
+    <select id="selectDiscussPostById" resultType="DiscussPost">
+        select <include refid="selectFields"></include>
+        from discuss_post
+        where id=#{id}
+    </select>
+
+    <!-- int updateCommentCount(int id,int commentCount); -->
+    <update id="updateCommentCount" >
+        update discuss_post
+        set comment_count=#{commentCount}
+        where id=#{id}
+    </update>
+
 </mapper>

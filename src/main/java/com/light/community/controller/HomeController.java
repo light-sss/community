@@ -6,7 +6,9 @@ import com.light.community.entity.DiscussPost;
 import com.light.community.entity.Page;
 import com.light.community.entity.User;
 import com.light.community.service.DiscussPostService;
+import com.light.community.service.LikeService;
 import com.light.community.service.UserService;
+import com.light.community.util.CommunityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +26,7 @@ import java.util.Map;
  * @create 2023-03-23 16:49
  */
 @Controller  //Controller访问路径可省略
-public class HomeController {
+public class HomeController implements CommunityConstant {
    //Controller会调用Service,需要将Service注入
     @Autowired
     private DiscussPostService discussPostService;
@@ -32,6 +34,10 @@ public class HomeController {
     @Autowired
     //会通过discussPostService查到的userId查找具体User信息
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
+
 
     //定义处理请求的方法
      //若返回的是一个HTML，则不用加@Response注解
@@ -57,12 +63,20 @@ public class HomeController {
             map.put("post",post);
             User user = userService.findUserById(post.getUserId());//再通过获取的帖子信息的UserID找到User完整信息
             map.put("user",user);
+            //获取点赞数量
+            long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
+            map.put("likeCount",likeCount);
             discussPosts.add(map);
         }
         model.addAttribute("discussPosts",discussPosts);
 
         //通过
         return "/index";
+    }
+
+    @RequestMapping(value = "/error",method = RequestMethod.GET)
+    public String errorPage(){
+        return "/error/500";
     }
 }
 

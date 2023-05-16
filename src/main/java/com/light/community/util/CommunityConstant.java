@@ -23,4 +23,14 @@ public interface CommunityConstant {
     //记住状态下的登录超时时间
     int REMEMBER_EXPIRED_SECONDS=3600*24*100;
 
+    //实体类型：帖子（给帖子的评论
+    int ENTITY_TYPE_POST=1;
+
+    //评论类型：评论（评论的评论
+
+    int ENTITY_TYPE_COMMENT=2;
+
+    //实体类型：用户
+    int ENTITY_TYPE_USER=3;
+
 }
