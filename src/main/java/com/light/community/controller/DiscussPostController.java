@@ -1,9 +1,7 @@
 package com.light.community.controller;
 
-import com.light.community.entity.Comment;
-import com.light.community.entity.DiscussPost;
-import com.light.community.entity.Page;
-import com.light.community.entity.User;
+import com.light.community.entity.*;
+import com.light.community.event.EventProducer;
 import com.light.community.service.CommentService;
 import com.light.community.service.DiscussPostService;
 import com.light.community.service.LikeService;
@@ -43,6 +41,9 @@ public class DiscussPostController implements CommunityConstant {
 	@Autowired
 	private CommentService commentService;
 
+	@Autowired
+	private EventProducer eventProducer;
+
 	@RequestMapping(value = "/add",method = RequestMethod.POST)
 	@ResponseBody
 	public String addDiscussPost(String title,String content){
@@ -58,6 +59,17 @@ public class DiscussPostController implements CommunityConstant {
 		post.setContent(content);
 		post.setCreateTime(new Date());
 		discussPostService.addDiscussPost(post);
+
+		//发布帖子后，同步到elasticsearch中
+		//利用事件进行发送
+		Event event=new Event()
+				.setTopic(TOPIC_PUBLISH)
+				.setUserId(user.getId())
+				.setEntityType(ENTITY_TYPE_POST)
+				.setEntityId(post.getId());
+
+		eventProducer.fireEvent(event);
+
 		return CommunityUtil.getJsonString(0,"发布成功！");
 	}
 

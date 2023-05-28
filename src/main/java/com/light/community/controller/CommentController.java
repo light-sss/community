@@ -59,8 +59,21 @@ public class CommentController implements CommunityConstant {
 			event.setEntityUserId(target.getUserId());
 		}
 
-		//生产者发送实现
+		//生产者发送事件
 		eventProducer.fireEvent(event);
+
+		//触发发帖事件
+		if(comment.getEntityType()==ENTITY_TYPE_POST){
+
+				event=new Event()
+					.setTopic(TOPIC_PUBLISH)
+					.setUserId(comment.getUserId())
+					.setEntityType(ENTITY_TYPE_POST)
+					.setEntityId(discussPostId);
+
+				eventProducer.fireEvent(event);
+		}
+
 
 		return "redirect:/discuss/detail/" + discussPostId;
 
