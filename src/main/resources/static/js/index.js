@@ -5,6 +5,14 @@ $(function(){
 function publish() {
 	$("#publishModal").modal("hide");
 
+	//发送Ajax请求之前，提前将CSRF令牌设置到请求的消息头中
+	var token=$("meta[name='_csrf']").attr("content");
+	var header=$("meta[name='_csrf_header']").attr("content");
+	//在发送请求之前对页面进行设置   xhr：发送异步请求的核心对象
+	$(document).ajaxSend(function(e,xhr,options){
+	    xhr.setRequestHeader(header,token);  //设置请求头
+	});
+
 	//获取标题和内容
 	var title=$("#recipient-name").val();//id选择器
 	var content=$("#message-text").val();

@@ -7,6 +7,10 @@
 	<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous"> -->
 	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" crossorigin="anonymous"/>
 	<link rel="stylesheet" th:href="@{/css/global.css}" />
+
+	<!-- 在访问此页是，在此处自动生成CSRF令牌 （异步请求不提交表单时-->
+	<meta name="_csrf" th:content="${_csrf.token}">
+	<meta name="_csrf_header" th:content="${_csrf.headerName}">    <!--通过请求消息头传值-->
 	<title>牛客网-个人主页</title>
 </head>
 <body>

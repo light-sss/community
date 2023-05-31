@@ -6,6 +6,10 @@ import com.light.community.service.UserService;
 import com.light.community.util.CookieUtil;
 import com.light.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -43,6 +47,14 @@ public class LoginTicketInterceptor implements HandlerInterceptor{
                 User user = userService.findUserById(loginTicket.getUserId());
                 //在本次请求中持有用户（考虑多线程情况：将用户存入当前线程
                 hostHolder.setUser(user);
+
+                //构建用户认证的结果，并存入securityContext中。以便于security进行授权
+                Authentication authentication=new UsernamePasswordAuthenticationToken(
+                        user,user.getPassword(),userService.getAuthority(user.getId())
+                );
+
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
+
             }
         }
         return true;
@@ -60,6 +72,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor{
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         hostHolder.clear();
+        //SecurityContextHolder.clearContext();
     }
 }
 
