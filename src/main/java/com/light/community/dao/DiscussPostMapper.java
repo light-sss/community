@@ -30,4 +30,11 @@ public interface DiscussPostMapper {
 
     //增加帖子评论数量
     int updateCommentCount(int id,int commentCount);
+
+    //置顶:更改类型为1
+    int updateType(int id,int type);
+
+    //加精：更改状态为1
+    int updateStatus(int id ,int status);
+
 }

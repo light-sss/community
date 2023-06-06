@@ -171,5 +171,86 @@ public class DiscussPostController implements CommunityConstant {
 		return "/site/discuss-detail";
 	}
 
+	//置顶与取消置顶
+	@RequestMapping(value = "/top",method = RequestMethod.POST)
+	@ResponseBody //结果返回为json字符串
+	public String setTop(int id){
+		//获取帖子
+		DiscussPost post = discussPostService.findDiscussPostById(id);
+		//int type = post.getType();  //获取帖子置顶状态
+		//if(type==0){
+		//	type=1;
+		//}else{
+		//	type=0;
+		//}
+		/**也可采取异或方式*/
+		// 获取置顶状态，1为置顶，0为正常状态,1^1=0 0^1=1
+		int type = post.getType()^1;
+		//置顶与取消置顶（更改帖子类型
+		discussPostService.updateType(id,type);
+		//将返回的结果
+		Map<String,Object> map=new HashMap<>();
+		map.put("type",type);
+
+
+		//更改完帖子后，要同步更新elasticsearch中的结果
+		//触发发帖事件
+		Event event=new Event()
+				.setTopic(TOPIC_PUBLISH)
+				.setUserId(hostHolder.getUser().getId())
+				.setEntityId(id)
+				.setEntityType(ENTITY_TYPE_POST);
+
+		eventProducer.fireEvent(event);
+
+		return CommunityUtil.getJsonString(0,null,map);
+	}
+
+	//加精
+	@RequestMapping(value = "/wonderful",method = RequestMethod.POST)
+	@ResponseBody //结果返回为json字符串
+	public String setWonderful(int id){
+		DiscussPost post = discussPostService.findDiscussPostById(id);
+		// 1为加精，0为正常， 1^1=0, 0^1=1
+		int status = post.getStatus()^1;
+		//更改帖子状态
+		discussPostService.updateStatus(id,status);
+		//将返回的结果
+		Map<String,Object> map=new HashMap<>();
+		map.put("status",status);
+
+
+		//更改完帖子后，要同步更新elasticsearch中的结果
+		//触发发帖事件
+		Event event=new Event()
+				.setTopic(TOPIC_PUBLISH)
+				.setUserId(hostHolder.getUser().getId())
+				.setEntityId(id)
+				.setEntityType(ENTITY_TYPE_POST);
+
+		eventProducer.fireEvent(event);
+
+		return CommunityUtil.getJsonString(0,null,map);
+	}
+
+	//删除
+	@RequestMapping(value = "/delete",method = RequestMethod.POST)
+	@ResponseBody //结果返回为json字符串
+	public String setDelete(int id){
+		//更改帖子状态
+		discussPostService.updateStatus(id,2);
+
+		//更改完帖子后，要同步更新elasticsearch中的结果
+		//触发删帖事件
+		Event event=new Event()
+				.setTopic(TOPIC_DELETE)
+				.setUserId(hostHolder.getUser().getId())
+				.setEntityId(id)
+				.setEntityType(ENTITY_TYPE_POST);
+
+		eventProducer.fireEvent(event);
+
+		return CommunityUtil.getJsonString(0);
+	}
 
 }

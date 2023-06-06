@@ -105,4 +105,24 @@ public class EventConsumer implements CommunityConstant {
 		//将查询到的帖子同步到elasticsearch中
 		elasticsearchService.saveDiscussPost(post);
 	}
+
+	//消费者消费发帖事件--->同步到elasticsearch中
+	@KafkaListener(topics = TOPIC_DELETE)
+	public void handleDelete(ConsumerRecord record){
+		//先进行判断record是否为空:未发事件或者发送的事件为空
+		if(record==null|| record.value()==null){
+			logger.error("发送的消息为空！");
+			return;
+		}
+
+		//事件不为空:将事件转换为Event对象
+		Event event= JSONObject.parseObject(record.value().toString(),Event.class);
+		//判断对象是否为空
+		if(event==null){
+			logger.error("消息格式错误！");
+			return;
+		}
+
+		elasticsearchService.deleteDiscussPost(event.getEntityId());
+	}
 }
