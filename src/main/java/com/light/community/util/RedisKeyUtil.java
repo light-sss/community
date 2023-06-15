@@ -1,5 +1,7 @@
 package com.light.community.util;
 
+import java.util.Date;
+
 /**
  * @author light
  * @Description
@@ -15,6 +17,10 @@ public class RedisKeyUtil {
 	public static final String PREFIX_KAPTCHA="kaptcha"; //验证码
 	public static final String PREFIX_TICKET="ticket"; //登录凭证
 	public static final String PREFIX_USER="user"; //缓存用户
+
+	public static final String PREFIX_UV="uv";  //独立用户
+
+	public static final String PREFIX_DAU="dau";  //活跃用户
 
 
 	//某个实体的赞
@@ -56,4 +62,22 @@ public class RedisKeyUtil {
 		return PREFIX_USER+SPLIT+userId;
 	}
 
+	//获取单日uv的key
+	public static String getUVKey(String date){
+		return PREFIX_UV+SPLIT+date;
+	}
+
+	//获取区间uv的key
+	public static String getUVKey(String startDate,String endDate){
+		return PREFIX_UV+SPLIT+startDate+SPLIT+endDate;
+	}
+
+	//获取单日dau的key
+	public static String getDAUKey(String date){
+		return PREFIX_DAU+SPLIT+date;
+	}
+	//获取区间dau的key
+	public static String getDAUKey(String startDate,String endDate){
+		return PREFIX_DAU+SPLIT+startDate+SPLIT+endDate;
+	}
 }
