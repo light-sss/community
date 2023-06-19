@@ -8,7 +8,9 @@ import com.light.community.service.CommentService;
 import com.light.community.service.DiscussPostService;
 import com.light.community.util.CommunityConstant;
 import com.light.community.util.HostHolder;
+import com.light.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,9 @@ public class CommentController implements CommunityConstant {
 
 	@Autowired
 	private EventProducer eventProducer;
+
+	@Autowired
+	private RedisTemplate redisTemplate;
 
 	@RequestMapping(value = "/add/{discussPostId}",method = RequestMethod.POST)
 	public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment){
@@ -62,9 +67,9 @@ public class CommentController implements CommunityConstant {
 		//生产者发送事件
 		eventProducer.fireEvent(event);
 
-		//触发发帖事件
-		if(comment.getEntityType()==ENTITY_TYPE_POST){
 
+		if(comment.getEntityType()==ENTITY_TYPE_POST){
+			//触发发帖事件(要同步到elasticsearch中
 				event=new Event()
 					.setTopic(TOPIC_PUBLISH)
 					.setUserId(comment.getUserId())
@@ -72,6 +77,10 @@ public class CommentController implements CommunityConstant {
 					.setEntityId(discussPostId);
 
 				eventProducer.fireEvent(event);
+
+			//计算帖子分数(将要计算分数的帖子加入set中
+			String redisKey = RedisKeyUtil.getPostScoreKey();
+			redisTemplate.opsForSet().add(redisKey,discussPostId);
 		}
 
 

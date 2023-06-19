@@ -7,7 +7,9 @@ import com.light.community.service.LikeService;
 import com.light.community.util.CommunityConstant;
 import com.light.community.util.CommunityUtil;
 import com.light.community.util.HostHolder;
+import com.light.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,6 +33,9 @@ public class LikeController implements CommunityConstant {
 
 	@Autowired
 	private EventProducer eventProducer;
+
+	@Autowired
+	private RedisTemplate redisTemplate;
 
 	@RequestMapping(value = "/like",method = RequestMethod.POST)
 	@ResponseBody
@@ -59,8 +64,16 @@ public class LikeController implements CommunityConstant {
 					.setData("postId",postId);
 
 			eventProducer.fireEvent(event);
+		}
+
+		//计算对帖子点赞的情况
+		if(entityType==ENTITY_TYPE_POST){
+			//计算帖子分数(将要计算分数的帖子加入set中
+			String redisKey = RedisKeyUtil.getPostScoreKey();
+			redisTemplate.opsForSet().add(redisKey,postId);
 
 		}
+
 		return CommunityUtil.getJsonString(0,null,map);
 	}
 

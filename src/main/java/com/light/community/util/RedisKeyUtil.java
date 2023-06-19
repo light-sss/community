@@ -17,10 +17,9 @@ public class RedisKeyUtil {
 	public static final String PREFIX_KAPTCHA="kaptcha"; //验证码
 	public static final String PREFIX_TICKET="ticket"; //登录凭证
 	public static final String PREFIX_USER="user"; //缓存用户
-
 	public static final String PREFIX_UV="uv";  //独立用户
-
 	public static final String PREFIX_DAU="dau";  //活跃用户
+	public static final String PREFIX_POST="post";  //帖子分数
 
 
 	//某个实体的赞
@@ -79,5 +78,10 @@ public class RedisKeyUtil {
 	//获取区间dau的key
 	public static String getDAUKey(String startDate,String endDate){
 		return PREFIX_DAU+SPLIT+startDate+SPLIT+endDate;
+	}
+
+	//获取帖子分数key
+	public static String getPostScoreKey(){
+		return PREFIX_POST+SPLIT+"score";
 	}
 }

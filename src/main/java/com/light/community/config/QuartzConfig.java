@@ -1,6 +1,7 @@
 package com.light.community.config;
 
 import com.light.community.quartz.AlphaJob;
+import com.light.community.quartz.PostScoreRefreshJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.springframework.context.annotation.Bean;
@@ -55,4 +56,29 @@ public class QuartzConfig {
 		return factoryBean;
 	}
 
+	//配置jobDetail
+	//刷新帖子分数配置
+	@Bean
+	public JobDetailFactoryBean  postScoreRefreshDetail(){
+		JobDetailFactoryBean factoryBean=new JobDetailFactoryBean(); //实例化对象
+		//设置属性
+		factoryBean.setJobClass( PostScoreRefreshJob.class);
+		factoryBean.setName("postScoreRefreshJob");
+		factoryBean.setGroup("communityJobGroup");
+		factoryBean.setDurability(true);  //该任务是否长久保存
+		factoryBean.setRequestsRecovery(true);  //该任务是否可恢复的
+		return factoryBean;
+	}
+
+	//配置trigger（依赖于jobDetail，需将jobDetail注入）【SimpleTriggerFactoryBean（简单trigger），CronTriggerFactoryBean(复杂的trigger)】
+	@Bean
+	public SimpleTriggerFactoryBean  postScoreRefreshTrigger(JobDetail postScoreRefreshDetail){
+		SimpleTriggerFactoryBean factoryBean=new SimpleTriggerFactoryBean();
+		factoryBean.setJobDetail(postScoreRefreshDetail);
+		factoryBean.setName("postScoreRefreshTrigger");
+		factoryBean.setGroup("communityTriggerGroup");
+		factoryBean.setRepeatInterval(1000*60*5); //时间间隔
+		factoryBean.setJobDataMap(new JobDataMap()); //trigger底层需要存储job的一些状态（初始化了一个默认的存储方式
+		return factoryBean;
+	}
 }

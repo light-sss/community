@@ -50,10 +50,10 @@ public class AlphaService {
     /**
      * @Scheduled(initialDelay【延迟多久开始执行】,fixedRate【时间间隔】)
      */
-    @Scheduled(initialDelay = 1000,fixedRate = 1000)
-    public void execute2(){
-        logger.debug("execute2");
-    }
+    //@Scheduled(initialDelay = 1000,fixedRate = 1000)  //定时任务
+    //public void execute2(){
+    //    logger.debug("execute2");
+    //}
 
 
 
