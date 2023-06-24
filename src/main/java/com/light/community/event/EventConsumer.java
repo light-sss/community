@@ -12,10 +12,12 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +40,16 @@ public class EventConsumer implements CommunityConstant {
 
 	@Autowired
 	private ElasticsearchService elasticsearchService;
+
+	//存储路径
+	@Value("${wk.image.storage}")
+	private String wkImageStorage;
+
+	@Value("${wk.image.command}")
+	private String wkImageCommand;
+
+
+
 
 	//消费者消费事件
 	//最后将事件转化为消息插入到message中
@@ -124,5 +136,35 @@ public class EventConsumer implements CommunityConstant {
 		}
 
 		elasticsearchService.deleteDiscussPost(event.getEntityId());
+	}
+
+	@KafkaListener(topics = TOPIC_SHARE)
+	public void handleShare(ConsumerRecord record){
+		//先进行判断record是否为空:未发事件或者发送的事件为空
+		if(record==null|| record.value()==null){
+			logger.error("发送的消息为空！");
+			return;
+		}
+
+		//事件不为空:将事件转换为Event对象
+		Event event= JSONObject.parseObject(record.value().toString(),Event.class);
+		//判断对象是否为空
+		if(event==null){
+			logger.error("消息格式错误！");
+			return;
+		}
+
+		String htmlUrl= (String) event.getData().get("htmlUrl");
+		String fileName= (String) event.getData().get("fileName");
+		String suffix= (String) event.getData().get("suffix");
+		//生成长图命令
+		String cmd=wkImageCommand+" --quality 75 "+htmlUrl+" "+wkImageStorage+"/"+fileName+suffix;
+		try {
+			Runtime.getRuntime().exec(cmd);
+			logger.info("生成长图成功："+cmd);
+		} catch (IOException e) {
+			logger.error("生成长图失败："+e.getMessage());
+		}
+
 	}
 }
