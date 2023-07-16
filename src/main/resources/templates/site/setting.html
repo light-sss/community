@@ -9,6 +9,10 @@
 	<link rel="stylesheet" th:href="@{/css/global.css}" />
 	<link rel="stylesheet" th:href="@{/css/login.css}" />
 	<title>牛客网-账号设置</title>
+
+	<!-- 在访问此页时，在此处自动生成CSRF令牌 （异步请求不提交表单时   上传头像-->
+	<meta name="_csrf" th:content="${_csrf.token}">
+	<meta name="_csrf_header" th:content="${_csrf.headerName}">    <!--通过请求消息头传值-->
 </head>
 <body>
 	<div class="nk-container">
@@ -64,7 +68,10 @@
 		<div class="main">
 			<div class="container p-5 mt-3 mb-3">
 				<!-- 上传头像 -->
+
 				<h6 class="text-left text-info border-bottom pb-2">上传头像</h6>
+				<!-- 上传到本地 -->
+				<!--
 				<form class="mt-5" method="post" enctype="multipart/form-data" th:action="@{/user/upload}">
 					<div class="form-group row mt-4">
 						<label for="head-image" class="col-sm-2 col-form-label text-right">选择头像:</label>
@@ -76,6 +83,31 @@
 								<label class="custom-file-label" for="head-image" data-browse="文件">选择一张图片</label>
 							</div>
 							<div class="invalid-feedback" th:text="${error}">
+								该账号不存在!
+							</div>
+						</div>
+					</div>
+					<div class="form-group row mt-4">
+						<div class="col-sm-2"></div>
+						<div class="col-sm-10 text-center">
+							<button type="submit" class="btn btn-info text-white form-control">立即上传</button>
+						</div>
+					</div>
+				</form>
+				-->
+				<!-- 上传到七牛云 -->
+				<form class="mt-5" id="uploadForm">
+					<div class="form-group row mt-4">
+						<label for="head-image" class="col-sm-2 col-form-label text-right">选择头像:</label>
+						<div class="col-sm-10">
+							<div class="custom-file">
+								<input type="hidden" name="token" th:value="${uploadToken}">
+								<input type="hidden" name="key" th:value="${fileName}">
+								<input type="file" class="custom-file-input"
+									   name="file" id="head-image" lang="es" required="">
+								<label class="custom-file-label" for="head-image" data-browse="文件">选择一张图片</label>
+							</div>
+							<div class="invalid-feedback">
 								该账号不存在!
 							</div>
 						</div>
@@ -202,6 +234,7 @@
 	<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script> -->
 	<script th:src="@{/js/bootstrap.min.js}"></script>
 	<script th:src="@{/js/global.js}"></script>
+	<script th:src="@{/js/setting.js}"></script>
 	<script>
 		$(function(){
 			bsCustomFileInput.init();

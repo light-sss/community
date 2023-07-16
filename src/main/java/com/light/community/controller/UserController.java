@@ -8,6 +8,8 @@ import com.light.community.service.UserService;
 import com.light.community.util.CommunityConstant;
 import com.light.community.util.CommunityUtil;
 import com.light.community.util.HostHolder;
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -57,6 +56,18 @@ public class UserController implements CommunityConstant {
     @Autowired
     private FollowService followService;
 
+    @Value("${qiniu.key.access}")
+    private String accessKey;
+
+    @Value("${qiniu.key.secret}")
+    private String secretKey;
+
+    @Value("${qiniu.bucket.header.name}")
+    private String headerBucketName;
+
+    @Value("${qiniu.bucket.header.url}")
+    private String headerBucketUrl;
+
     private  static final Logger logger= LoggerFactory.getLogger(UserController.class);
 
 
@@ -64,12 +75,37 @@ public class UserController implements CommunityConstant {
     //跳转到账号设置页面
     @LoginRequired //需要拦截请求：安全
     @RequestMapping(value = "/setting",method = RequestMethod.GET)
-    public String getSettings(){
+    public String getSettings(Model model){
+
+        //上传文件名称
+        String fileName=CommunityUtil.generateUUID();
+        //设置相应信息
+        StringMap policy=new StringMap();
+        policy.put("returnBody",CommunityUtil.getJsonString(0));
+        //生成上传凭证
+        Auth auth=Auth.create(accessKey,secretKey);
+        String uploadToken=auth.uploadToken(headerBucketName,fileName,3600,policy);
+
+        model.addAttribute("fileName",fileName);
+        model.addAttribute("uploadToken",uploadToken);
 
         return "/site/setting";
     }
 
-    //将头像上传的头像保存到本地
+    //更新头像路径(更新成七牛云中路径
+    @RequestMapping(value = "/header/url",method = RequestMethod.POST)
+    @ResponseBody
+    public String updateHeaderUrl(String fileName){
+        if(StringUtils.isBlank(fileName)){
+            return CommunityUtil.getJsonString(1,"文件名不能为空！");
+        }
+        String url=headerBucketUrl+"/"+fileName;
+        userService.updateHeaderUrl(hostHolder.getUser().getId(),url);
+        return CommunityUtil.getJsonString(0);
+    }
+
+
+    //将头像上传的头像保存到本地(废弃
     @LoginRequired  //需要拦截请求：安全
     @RequestMapping(value = "/upload",method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model){
@@ -110,7 +146,7 @@ public class UserController implements CommunityConstant {
         return "redirect:/index";
     }
 
-    //从本地获取头像
+    //从本地获取头像（废弃
     @RequestMapping(value = "/header/{fileName}",method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response){
         //获取服务器存放文件路径(硬盘的

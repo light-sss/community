@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +47,11 @@ public class ShareController implements CommunityConstant {
 	@Value("${wk.image.storage}")
 	private String wkImageStorage;
 
+	@Value("${qiniu.bucket.share.url}")
+	private String shareBucketUrl;
+
+
+
 	@RequestMapping(value = "/share", method = RequestMethod.GET)
 	@ResponseBody
 	public String shareImage(String htmlUrl) {
@@ -63,12 +69,16 @@ public class ShareController implements CommunityConstant {
 
 		//返回访问路径
 		Map<String, Object> map = new HashMap<>();
-		map.put("shareUrl", domain + contextPath + "/share/image/" + fileName);
+		//map.put("shareUrl", domain + contextPath + "/share/image/" + fileName);
 		// eg: http://localhost:8080/community/share/image/33365834673863
+
+		//重构：返回七牛云的外链
+		map.put("shareUrl",shareBucketUrl+"/"+fileName);
 
 		return CommunityUtil.getJsonString(0, null, map);
 	}
 
+	//废弃：后续通过七牛云获取长图
 	//获取长图(直接给浏览器返回一个图片，需要用response处理
 	@RequestMapping(value = "/share/image/{fileName}", method = RequestMethod.GET)
 	public void getImage(@PathVariable(name = "fileName") String fileName, HttpServletResponse response) {
@@ -92,7 +102,6 @@ public class ShareController implements CommunityConstant {
 		} catch (IOException e) {
 			logger.error("获取长图失败："+e.getMessage());
 		}
-
 
 	}
 }
